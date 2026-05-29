@@ -3,6 +3,7 @@ import { Toaster } from "@/components/ui/sonner"
 import { Poppins } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme/theme-porvider";
+import { ReduxProvider } from "@/components/redux/provider";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -28,6 +29,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full bg-background font-sans text-foreground">
+        <ReduxProvider>
         <ThemeProvider
             attribute="class"
             defaultTheme="system"
@@ -37,8 +39,10 @@ export default function RootLayout({
        <main className="min-h-screen">
           {children}
       </main>
+       <Toaster />
       </ThemeProvider>
-    <Toaster />
+   
+    </ReduxProvider>
 
       </body>
     </html>

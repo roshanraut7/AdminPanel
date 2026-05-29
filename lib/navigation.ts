@@ -2,9 +2,11 @@
 import type { LucideIcon } from "lucide-react";
 import {
   Bell,
+  EarthIcon,
   LayoutDashboard,
   MessageSquareText,
   Newspaper,
+  UserCog,
   UsersRound,
 } from "lucide-react";
 
@@ -14,6 +16,8 @@ export const adminRoutes = {
   posts: "/admin/posts",
   users: "/admin/users",
   notifications: "/admin/notifications",
+  category:"/admin/category",
+  moderator:"/admin/moderator"
 } as const;
 
 export type AdminRoute = (typeof adminRoutes)[keyof typeof adminRoutes];
@@ -32,9 +36,19 @@ export const adminNavigationItems: AdminNavigationItem[] = [
     icon: LayoutDashboard,
   },
   {
+     title: "Moderator",
+    href: adminRoutes.moderator,
+    icon: UserCog,
+  },
+  {
+      title: "Category",
+    href: adminRoutes.category,
+    icon: MessageSquareText,
+  },
+  {
     title: "Community",
     href: adminRoutes.community,
-    icon: MessageSquareText,
+    icon: EarthIcon,
   },
   {
     title: "Post",

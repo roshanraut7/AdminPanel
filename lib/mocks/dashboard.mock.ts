@@ -50,7 +50,7 @@ export const dashboardStats: StatCardMock[] = [
     change: "+4.1%",
     helper: "Unread admin alerts",
     icon: Bell,
-    tone: "neutral",
+    tone: "success",
   },
 ];
 

@@ -246,7 +246,7 @@ export default function AdminDashboard({ children }: DashboardShellProps) {
                   className="w-56 rounded-xl border-border bg-card p-2 text-card-foreground"
                 >
                   <DropdownMenuLabel>
-                    <p className="text-sm font-bold">Nikhil</p>
+                    <p className="text-sm font-bold">Roshan</p>
                     <p className="text-xs font-medium text-muted-foreground">
                       Admin
                     </p>
