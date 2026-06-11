@@ -2,9 +2,9 @@
 
 import { type Column, type ColumnDef } from "@tanstack/react-table";
 import {
+  ArrowUpDown,
   Copy,
   MoreHorizontal,
-  ArrowUpDown,
 } from "lucide-react";
 
 import type {
@@ -27,9 +27,7 @@ import {
 
 export type { AdminCommunity } from "@/types/admin-community";
 
-function getInitials(
-  value: string | null | undefined,
-) {
+function getInitials(value: string | null | undefined) {
   if (!value) {
     return "NA";
   }
@@ -67,6 +65,9 @@ function SortableHeader({
 }
 
 export const communityColumns: ColumnDef<AdminCommunity>[] = [
+  /**
+   * COMMUNITY
+   */
   {
     accessorKey: "name",
     header: ({ column }) => (
@@ -96,9 +97,11 @@ export const communityColumns: ColumnDef<AdminCommunity>[] = [
               {community.name}
             </p>
 
-            <p className="truncate text-xs text-muted-foreground">
-              /{community.slug}
-            </p>
+            {community.slug && (
+              <p className="truncate text-xs text-muted-foreground">
+                {community.slug}
+              </p>
+            )}
 
             {community.description && (
               <p className="mt-1 line-clamp-1 max-w-[260px] text-xs text-muted-foreground">
@@ -110,22 +113,36 @@ export const communityColumns: ColumnDef<AdminCommunity>[] = [
       );
     },
   },
+
+  /**
+   * CATEGORY
+   */
   {
     accessorKey: "categoryName",
     header: "Category",
     enableSorting: false,
-    cell: ({ row }) => (
-      <div className="min-w-[135px]">
-        <p className="text-sm font-medium text-foreground">
-          {row.original.categoryName}
-        </p>
+    cell: ({ row }) => {
+      const community = row.original;
 
-        <p className="text-xs text-muted-foreground">
-          /{row.original.categorySlug}
-        </p>
-      </div>
-    ),
+      return (
+        <div className="min-w-[135px]">
+          <p className="text-sm font-medium text-foreground">
+            {community.categoryName || "No category"}
+          </p>
+
+          {community.categorySlug && (
+            <p className="text-xs text-muted-foreground">
+              {community.categorySlug}
+            </p>
+          )}
+        </div>
+      );
+    },
   },
+
+  /**
+   * OWNER
+   */
   {
     accessorKey: "adminName",
     header: "Owner",
@@ -159,28 +176,25 @@ export const communityColumns: ColumnDef<AdminCommunity>[] = [
       );
     },
   },
+
+  /**
+   * MEMBERS
+   * Shows only member count.
+   */
   {
     accessorKey: "memberCount",
     header: "Members",
     enableSorting: false,
     cell: ({ row }) => (
-      <div className="min-w-[95px]">
-        <p className="text-sm font-semibold text-foreground">
-          {row.original.memberCount}
-        </p>
-
-        {row.original.bannedCount > 0 ? (
-          <p className="text-xs font-medium text-destructive">
-            {row.original.bannedCount} banned
-          </p>
-        ) : (
-          <p className="text-xs text-muted-foreground">
-            No bans
-          </p>
-        )}
-      </div>
+      <span className="rounded-md bg-secondary px-2.5 py-1 text-sm font-medium text-secondary-foreground">
+        {row.original.memberCount}
+      </span>
     ),
   },
+
+  /**
+   * POSTS
+   */
   {
     accessorKey: "postCount",
     header: "Posts",
@@ -191,27 +205,37 @@ export const communityColumns: ColumnDef<AdminCommunity>[] = [
       </span>
     ),
   },
+
+  /**
+   * BANNED MEMBERS
+   * Replaces Requests column.
+   */
   {
-    accessorKey: "joinRequestCount",
-    header: "Requests",
+    accessorKey: "bannedCount",
+    header: "Banned",
     enableSorting: false,
     cell: ({ row }) => {
-      const count = row.original.joinRequestCount;
+      const bannedCount = row.original.bannedCount;
+      const hasBannedMembers = bannedCount > 0;
 
       return (
         <Badge
           variant="outline"
           className={
-            count > 0
-              ? "border-primary/20 bg-accent px-2.5 py-1 text-accent-foreground"
-              : "border-border bg-muted px-2.5 py-1 text-muted-foreground"
+            hasBannedMembers
+              ? "border-destructive/20 bg-destructive/10 px-2.5 py-1 font-medium text-destructive"
+              : "border-border bg-muted px-2.5 py-1 font-medium text-muted-foreground"
           }
         >
-          {count}
+          {bannedCount}
         </Badge>
       );
     },
   },
+
+  /**
+   * VISIBILITY
+   */
   {
     accessorKey: "visibility",
     header: ({ column }) => (
@@ -230,17 +254,19 @@ export const communityColumns: ColumnDef<AdminCommunity>[] = [
           variant="outline"
           className={
             visibility === "PUBLIC"
-              ? "border-primary/20 bg-accent px-2.5 py-1 text-accent-foreground"
-              : "border-border bg-muted px-2.5 py-1 text-muted-foreground"
+              ? "border-primary/20 bg-accent px-2.5 py-1 font-medium text-accent-foreground"
+              : "border-border bg-muted px-2.5 py-1 font-medium text-muted-foreground"
           }
         >
-          {visibility === "PUBLIC"
-            ? "Public"
-            : "Private"}
+          {visibility === "PUBLIC" ? "Public" : "Private"}
         </Badge>
       );
     },
   },
+
+  /**
+   * STATUS
+   */
   {
     accessorKey: "status",
     header: ({ column }) => (
@@ -261,8 +287,8 @@ export const communityColumns: ColumnDef<AdminCommunity>[] = [
           variant="outline"
           className={
             isActive
-              ? "gap-1.5 border-transparent bg-accent px-2.5 py-1 text-accent-foreground"
-              : "gap-1.5 border-border bg-muted px-2.5 py-1 text-muted-foreground"
+              ? "gap-1.5 border-transparent bg-accent px-2.5 py-1 font-medium text-accent-foreground"
+              : "gap-1.5 border-border bg-muted px-2.5 py-1 font-medium text-muted-foreground"
           }
         >
           <span
@@ -278,6 +304,10 @@ export const communityColumns: ColumnDef<AdminCommunity>[] = [
       );
     },
   },
+
+  /**
+   * CREATED
+   */
   {
     accessorKey: "createdAt",
     header: ({ column }) => (
@@ -287,9 +317,7 @@ export const communityColumns: ColumnDef<AdminCommunity>[] = [
       />
     ),
     cell: ({ row }) => {
-      const createdAt = new Date(
-        row.original.createdAt,
-      );
+      const createdAt = new Date(row.original.createdAt);
 
       return (
         <span className="whitespace-nowrap text-sm text-muted-foreground">
@@ -302,6 +330,10 @@ export const communityColumns: ColumnDef<AdminCommunity>[] = [
       );
     },
   },
+
+  /**
+   * ACTIONS
+   */
   {
     id: "actions",
     header: () => (
@@ -342,10 +374,9 @@ export const communityColumns: ColumnDef<AdminCommunity>[] = [
 
               <DropdownMenuItem
                 onClick={() =>
-                  navigator.clipboard.writeText(
-                    community.id,
-                  )
+                  navigator.clipboard.writeText(community.id)
                 }
+                className="focus:bg-accent focus:text-accent-foreground"
               >
                 <Copy className="mr-2 size-4" />
                 Copy community ID
@@ -353,10 +384,9 @@ export const communityColumns: ColumnDef<AdminCommunity>[] = [
 
               <DropdownMenuItem
                 onClick={() =>
-                  navigator.clipboard.writeText(
-                    community.slug,
-                  )
+                  navigator.clipboard.writeText(community.slug)
                 }
+                className="focus:bg-accent focus:text-accent-foreground"
               >
                 <Copy className="mr-2 size-4" />
                 Copy slug

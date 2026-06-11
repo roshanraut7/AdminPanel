@@ -14,6 +14,13 @@ import type {
   SortDirection,
 } from "@/types/admin-community";
 
+import type {
+  AdminCommunityLimitUsersResponse,
+  GetCommunityLimitUsersParams,
+  UpdateUserCommunityLimitPayload,
+  UpdateUserCommunityLimitResponse,
+} from "@/types/community-request";
+
 type ManagedCommunityRow = {
   id: string;
   name: string;
@@ -92,6 +99,12 @@ function mapManagedCommunityToTableRow(
     updatedAt: community.updatedAt,
   };
 }
+export type CreateOfficialDistrictCommunityPayload = {
+  districtKey: string;
+  districtName: string;
+  categoryId: string;
+  description?: string;
+};
 
 export const communityApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -173,6 +186,22 @@ export const communityApi = baseApi.injectEndpoints({
         { type: "Community", id: "MY_LIST" },
       ],
     }),
+// creating official district community
+    createOfficialDistrictCommunity: builder.mutation<
+  unknown,
+  CreateOfficialDistrictCommunityPayload
+>({
+  query: (body) => ({
+    url: "/admin/communities/district-official",
+    method: "POST",
+    body,
+  }),
+
+  invalidatesTags: [
+    { type: "Community", id: "ADMIN_LIST" },
+    { type: "Community", id: "MY_LIST" },
+  ],
+}),
 
     /**
      * Existing admin details endpoint.
@@ -187,6 +216,76 @@ export const communityApi = baseApi.injectEndpoints({
         { type: "Community", id: communityId },
       ],
     }),
+
+    /**
+     * New admin endpoint.
+     *
+     * Loads users with:
+     * - created general community count
+     * - current allowed limit
+     * - available remaining slots
+     *
+     * Backend:
+     * GET /admin/communities/limit-users
+     */
+    getCommunityLimitUsers: builder.query<
+      AdminCommunityLimitUsersResponse,
+      GetCommunityLimitUsersParams
+    >({
+      query: (params) => ({
+        url: "/admin/communities/limit-users",
+        method: "GET",
+        params,
+      }),
+
+      providesTags: (result) =>
+        result
+          ? [
+              { type: "Community" as const, id: "COMMUNITY_LIMIT_USERS" },
+              ...result.data.map((user) => ({
+                type: "Community" as const,
+                id: `COMMUNITY_LIMIT_USER_${user.id}`,
+              })),
+            ]
+          : [
+              {
+                type: "Community" as const,
+                id: "COMMUNITY_LIMIT_USERS",
+              },
+            ],
+    }),
+
+    /**
+     * New admin endpoint.
+     *
+     * Increases one selected user's community creation limit.
+     *
+     * Backend:
+     * PATCH /admin/communities/users/:targetUserId/community-limit
+     */
+    updateUserCommunityLimit: builder.mutation<
+      UpdateUserCommunityLimitResponse,
+      UpdateUserCommunityLimitPayload
+    >({
+      query: ({ targetUserId, newLimit }) => ({
+        url: `/admin/communities/users/${targetUserId}/community-limit`,
+        method: "PATCH",
+        body: {
+          newLimit,
+        },
+      }),
+
+      invalidatesTags: (_result, _error, { targetUserId }) => [
+        {
+          type: "Community" as const,
+          id: "COMMUNITY_LIMIT_USERS",
+        },
+        {
+          type: "Community" as const,
+          id: `COMMUNITY_LIMIT_USER_${targetUserId}`,
+        },
+      ],
+    }),
   }),
 
   overrideExisting: false,
@@ -197,4 +296,9 @@ export const {
   useGetMyCommunitiesQuery,
   useCreateCommunityMutation,
   useGetAdminCommunityDetailsQuery,
+
+  // New community limit hooks
+  useGetCommunityLimitUsersQuery,
+  useUpdateUserCommunityLimitMutation,
+    useCreateOfficialDistrictCommunityMutation,
 } = communityApi;

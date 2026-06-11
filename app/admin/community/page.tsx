@@ -21,6 +21,7 @@ import {
 import { AddCommunityForm } from "@/components/form/add-community";
 import { DataTable } from "@/components/common/data-table";
 import { communityColumns } from "@/components/column/community-column";
+import { AddDistrictCommunityForm } from "@/components/form/add-district-community";
 import {
   useGetAdminCommunitiesQuery,
   useGetMyCommunitiesQuery,
@@ -192,6 +193,23 @@ const Page = () => {
       },
     ]);
   };
+  const handleDistrictCommunityCreated = () => {
+  setActiveTab("all");
+  setSearchInput("");
+  setSearch("");
+
+  setPagination((previous) => ({
+    ...previous,
+    pageIndex: 0,
+  }));
+
+  setSorting([
+    {
+      id: "createdAt",
+      desc: true,
+    },
+  ]);
+};
 
   const tableTitle =
     activeTab === "all"
@@ -223,9 +241,15 @@ const Page = () => {
           </div>
         </div>
 
-        <AddCommunityForm
-          onCreated={handleCommunityCreated}
-        />
+       <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+  <AddDistrictCommunityForm
+    onCreated={handleDistrictCommunityCreated}
+  />
+
+  <AddCommunityForm
+    onCreated={handleCommunityCreated}
+  />
+</div>
       </div>
 
       {/* Tab Navigation */}
@@ -234,7 +258,7 @@ const Page = () => {
         onValueChange={handleTabChange}
         className="space-y-5"
       >
-        <TabsList className="h-auto w-full justify-start gap-1 rounded-xl border border-border bg-card p-1 sm:w-auto">
+        <TabsList className="h-auto w-full justify-start gap-1 bg-card p-1 sm:w-auto" variant="line">
           <TabsTrigger
             value="all"
             className="gap-2 rounded-lg px-4 py-2.5 text-sm data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-none"
