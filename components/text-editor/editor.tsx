@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
-import Link from "@tiptap/extension-link";
+import TiptapLink from "@tiptap/extension-link";
 import CharacterCount from "@tiptap/extension-character-count";
 import {
   Bold,
@@ -45,17 +45,20 @@ export function AdminRichTextEditor({
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
-      StarterKit,
-      Placeholder.configure({
-        placeholder,
-      }),
-      Link.configure({
-        openOnClick: false,
-        autolink: true,
-        defaultProtocol: "https",
-      }),
-      CharacterCount,
-    ],
+  StarterKit.configure({
+    link: false,
+  }),
+  Placeholder.configure({
+    placeholder,
+  }),
+  TiptapLink.configure({
+    openOnClick: false,
+    autolink: true,
+    linkOnPaste: true,
+    defaultProtocol: "https",
+  }),
+  CharacterCount,
+],
     content: value || "<p></p>",
     editorProps: {
       attributes: {

@@ -95,7 +95,7 @@ function CustomerDemographicCard() {
       <CardHeader className="flex flex-row items-start justify-between gap-4 p-6">
         <div>
           <CardTitle className="text-2xl font-bold tracking-[-0.04em] text-foreground">
-            Customer Demographic
+            User Demographic 
           </CardTitle>
 
           <CardDescription className="mt-1 text-sm text-muted-foreground">
