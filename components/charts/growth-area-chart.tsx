@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { format } from "date-fns";
 import type { DateRange } from "react-day-picker";
 import { CalendarDays } from "lucide-react";
@@ -35,8 +35,21 @@ type RangeType = "monthly" | "quarterly" | "yearly";
 
 type ChartPoint = {
   label: string;
-  users: number;
-  communities: number;
+  [key: string]: string | number;
+};
+
+type GrowthAreaChartSeries = {
+  dataKey: string;
+  label: string;
+};
+
+type GrowthAreaChartProps = {
+  title?: string;
+  description?: string;
+  data?: ChartPoint[];
+  series?: GrowthAreaChartSeries[];
+  showControls?: boolean;
+  height?: number;
 };
 
 const monthlyData: ChartPoint[] = [
@@ -68,6 +81,24 @@ const yearlyData: ChartPoint[] = [
   { label: "2026", users: 2333, communities: 945 },
 ];
 
+const defaultSeries: GrowthAreaChartSeries[] = [
+  {
+    dataKey: "users",
+    label: "Users",
+  },
+  {
+    dataKey: "communities",
+    label: "Communities",
+  },
+];
+
+const chartColors = [
+  "var(--primary)",
+  "var(--ring)",
+  "var(--destructive)",
+  "var(--muted-foreground)",
+];
+
 type ChartTooltipProps = {
   active?: boolean;
   label?: string;
@@ -85,36 +116,29 @@ function ChartTooltip({ active, label, payload }: ChartTooltipProps) {
 
   return (
     <div className="rounded-2xl border border-border bg-card px-4 py-3 shadow-xl">
-      <p className="mb-3 text-xs font-semibold text-foreground">
-        {label}
-      </p>
+      <p className="mb-3 text-xs font-semibold text-foreground">{label}</p>
 
       <div className="space-y-2">
-        {payload.map((item) => {
-          const labelText =
-            item.name === "users" ? "Users" : "Communities";
+        {payload.map((item) => (
+          <div
+            key={item.name}
+            className="flex min-w-[170px] items-center justify-between gap-4 text-xs"
+          >
+            <span className="flex items-center gap-2 text-muted-foreground">
+              <span
+                className="size-2.5 rounded-full"
+                style={{
+                  backgroundColor: item.color,
+                }}
+              />
+              {item.name}
+            </span>
 
-          return (
-            <div
-              key={item.name}
-              className="flex min-w-[170px] items-center justify-between gap-4 text-xs"
-            >
-              <span className="flex items-center gap-2 text-muted-foreground">
-                <span
-                  className="size-2.5 rounded-full"
-                  style={{
-                    backgroundColor: item.color,
-                  }}
-                />
-                {labelText}
-              </span>
-
-              <span className="font-semibold text-foreground">
-                {item.value}
-              </span>
-            </div>
-          );
-        })}
+            <span className="font-semibold text-foreground">
+              {formatCompactNumber(Number(item.value))}
+            </span>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -135,23 +159,31 @@ function formatDateRange(dateRange: DateRange | undefined) {
   )}`;
 }
 
-export function GrowthAreaChart() {
+export function GrowthAreaChart({
+  title = "Statistics",
+  description = "Platform growth overview across the selected period.",
+  data,
+  series = defaultSeries,
+  showControls = true,
+  height = 370,
+}: GrowthAreaChartProps) {
+  const chartId = useId().replace(/:/g, "");
   const [range, setRange] = useState<RangeType>("monthly");
 
- const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
-  const today = new Date();
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
+    const today = new Date();
 
-  return {
-    from: today,
-    to: new Date(
-      today.getFullYear(),
-      today.getMonth(),
-      today.getDate() + 6
-    ),
-  };
-});
+    return {
+      from: today,
+      to: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 6),
+    };
+  });
 
   const chartData = useMemo(() => {
+    if (data) {
+      return data;
+    }
+
     if (range === "quarterly") {
       return quarterlyData;
     }
@@ -161,84 +193,86 @@ export function GrowthAreaChart() {
     }
 
     return monthlyData;
-  }, [range]);
+  }, [data, range]);
 
   return (
     <Card className="overflow-hidden rounded-3xl border border-border bg-card text-card-foreground shadow-sm">
       <CardHeader className="flex flex-col gap-5 border-b border-border p-6 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
           <CardTitle className="text-xl font-bold tracking-[-0.04em] text-foreground sm:text-2xl">
-            Statistics
+            {title}
           </CardTitle>
 
           <CardDescription className="mt-1 text-sm text-muted-foreground">
-            Platform growth overview across the selected period.
+            {description}
           </CardDescription>
         </div>
 
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <Tabs
-            value={range}
-            onValueChange={(value) => setRange(value as RangeType)}
-            className="w-full sm:w-auto"
-          >
-            <TabsList className="h-11 rounded-xl bg-muted p-1">
-              <TabsTrigger
-                value="monthly"
-                className="h-9 rounded-lg px-4 text-sm font-semibold text-muted-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm"
-              >
-                Monthly
-              </TabsTrigger>
-
-              <TabsTrigger
-                value="quarterly"
-                className="h-9 rounded-lg px-4 text-sm font-semibold text-muted-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm"
-              >
-                Quarterly
-              </TabsTrigger>
-
-              <TabsTrigger
-                value="yearly"
-                className="h-9 rounded-lg px-4 text-sm font-semibold text-muted-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm"
-              >
-                Yearly
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                type="button"
-                variant="outline"
-                className={cn(
-                  "h-11 min-w-[180px] justify-start rounded-xl border-border bg-card px-4 text-left font-semibold text-foreground shadow-none hover:bg-muted",
-                  !dateRange?.from && "text-muted-foreground"
-                )}
-              >
-                <CalendarDays className="mr-2 size-4 text-muted-foreground" />
-                {formatDateRange(dateRange)}
-              </Button>
-            </PopoverTrigger>
-
-            <PopoverContent
-              align="end"
-              className="w-auto rounded-2xl border-border bg-card p-0 shadow-xl"
+        {showControls ? (
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <Tabs
+              value={range}
+              onValueChange={(value) => setRange(value as RangeType)}
+              className="w-full sm:w-auto"
             >
-              <Calendar
-                mode="range"
-                selected={dateRange}
-                onSelect={(range) => setDateRange(range)}
-                numberOfMonths={1}
-                className="rounded-2xl"
-              />
-            </PopoverContent>
-          </Popover>
-        </div>
+              <TabsList className="h-11 rounded-xl bg-muted p-1">
+                <TabsTrigger
+                  value="monthly"
+                  className="h-9 rounded-lg px-4 text-sm font-semibold text-muted-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+                >
+                  Monthly
+                </TabsTrigger>
+
+                <TabsTrigger
+                  value="quarterly"
+                  className="h-9 rounded-lg px-4 text-sm font-semibold text-muted-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+                >
+                  Quarterly
+                </TabsTrigger>
+
+                <TabsTrigger
+                  value="yearly"
+                  className="h-9 rounded-lg px-4 text-sm font-semibold text-muted-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+                >
+                  Yearly
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className={cn(
+                    "h-11 min-w-[180px] justify-start rounded-xl border-border bg-card px-4 text-left font-semibold text-foreground shadow-none hover:bg-muted",
+                    !dateRange?.from && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarDays className="mr-2 size-4 text-muted-foreground" />
+                  {formatDateRange(dateRange)}
+                </Button>
+              </PopoverTrigger>
+
+              <PopoverContent
+                align="end"
+                className="w-auto rounded-2xl border-border bg-card p-0 shadow-xl"
+              >
+                <Calendar
+                  mode="range"
+                  selected={dateRange}
+                  onSelect={(range) => setDateRange(range)}
+                  numberOfMonths={1}
+                  className="rounded-2xl"
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+        ) : null}
       </CardHeader>
 
       <CardContent className="p-6">
-        <div className="h-[370px] w-full min-w-0">
+        <div className="w-full min-w-0" style={{ height }}>
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart
               data={chartData}
@@ -250,43 +284,24 @@ export function GrowthAreaChart() {
               }}
             >
               <defs>
-                <linearGradient
-                  id="usersFill"
-                  x1="0"
-                  y1="0"
-                  x2="0"
-                  y2="1"
-                >
-                  <stop
-                    offset="5%"
-                    stopColor="var(--primary)"
-                    stopOpacity={0.24}
-                  />
-                  <stop
-                    offset="95%"
-                    stopColor="var(--primary)"
-                    stopOpacity={0.04}
-                  />
-                </linearGradient>
+                {series.map((item, index) => {
+                  const color = chartColors[index % chartColors.length];
+                  const gradientId = `${chartId}-${item.dataKey}-fill`;
 
-                <linearGradient
-                  id="communitiesFill"
-                  x1="0"
-                  y1="0"
-                  x2="0"
-                  y2="1"
-                >
-                  <stop
-                    offset="5%"
-                    stopColor="var(--ring)"
-                    stopOpacity={0.24}
-                  />
-                  <stop
-                    offset="95%"
-                    stopColor="var(--ring)"
-                    stopOpacity={0.04}
-                  />
-                </linearGradient>
+                  return (
+                    <linearGradient
+                      key={item.dataKey}
+                      id={gradientId}
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
+                      <stop offset="5%" stopColor={color} stopOpacity={0.24} />
+                      <stop offset="95%" stopColor={color} stopOpacity={0.04} />
+                    </linearGradient>
+                  );
+                })}
               </defs>
 
               <CartesianGrid
@@ -311,6 +326,7 @@ export function GrowthAreaChart() {
                 axisLine={false}
                 tickLine={false}
                 tickMargin={12}
+                tickFormatter={(value) => formatCompactNumber(Number(value))}
                 tick={{
                   fill: "var(--muted-foreground)",
                   fontSize: 12,
@@ -327,37 +343,44 @@ export function GrowthAreaChart() {
                 content={<ChartTooltip />}
               />
 
-              <Area
-                type="monotone"
-                dataKey="users"
-                stroke="var(--primary)"
-                strokeWidth={2.8}
-                fill="url(#usersFill)"
-                activeDot={{
-                  r: 6,
-                  fill: "var(--primary)",
-                  stroke: "var(--card)",
-                  strokeWidth: 2,
-                }}
-              />
+              {series.map((item, index) => {
+                const color = chartColors[index % chartColors.length];
+                const gradientId = `${chartId}-${item.dataKey}-fill`;
 
-              <Area
-                type="monotone"
-                dataKey="communities"
-                stroke="var(--ring)"
-                strokeWidth={2.8}
-                fill="url(#communitiesFill)"
-                activeDot={{
-                  r: 6,
-                  fill: "var(--ring)",
-                  stroke: "var(--card)",
-                  strokeWidth: 2,
-                }}
-              />
+                return (
+                  <Area
+                    key={item.dataKey}
+                    type="monotone"
+                    dataKey={item.dataKey}
+                    name={item.label}
+                    stroke={color}
+                    strokeWidth={2.8}
+                    fill={`url(#${gradientId})`}
+                    activeDot={{
+                      r: 6,
+                      fill: color,
+                      stroke: "var(--card)",
+                      strokeWidth: 2,
+                    }}
+                  />
+                );
+              })}
             </AreaChart>
           </ResponsiveContainer>
         </div>
       </CardContent>
     </Card>
   );
+}
+
+function formatCompactNumber(value: number) {
+  if (value >= 1_000_000) {
+    return `${(value / 1_000_000).toFixed(value >= 10_000_000 ? 0 : 1)}M`;
+  }
+
+  if (value >= 1_000) {
+    return `${(value / 1_000).toFixed(value >= 10_000 ? 0 : 1)}K`;
+  }
+
+  return String(value);
 }

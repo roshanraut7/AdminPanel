@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Ban, UsersRound } from "lucide-react";
 
 import { DataTable } from "@/components/common/data-table";
@@ -16,14 +17,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 
 import { mockAdminUsers } from "@/mocks/user-mock";
 import type { AdminUser } from "@/types/user";
@@ -31,9 +24,10 @@ import type { AdminUser } from "@/types/user";
 import { createUserColumns } from "@/components/column/user-column";
 
 export default function AdminUsersPage() {
+  const router = useRouter();
+
   const [users, setUsers] = useState<AdminUser[]>(mockAdminUsers);
 
-  const [profileUser, setProfileUser] = useState<AdminUser | null>(null);
   const [banUser, setBanUser] = useState<AdminUser | null>(null);
   const [deleteUser, setDeleteUser] = useState<AdminUser | null>(null);
 
@@ -47,9 +41,12 @@ export default function AdminUsersPage() {
     ? Math.round((bannedUsers / totalUsers) * 100)
     : 0;
 
-  const handleViewProfile = useCallback((user: AdminUser) => {
-    setProfileUser(user);
-  }, []);
+  const handleViewProfile = useCallback(
+    (user: AdminUser) => {
+      router.push(`/admin/users/${user.id}`);
+    },
+    [router],
+  );
 
   const handleOpenBanDialog = useCallback((user: AdminUser) => {
     setBanUser(user);
@@ -145,80 +142,6 @@ export default function AdminUsersPage() {
         />
       </div>
 
-      <Dialog
-        open={Boolean(profileUser)}
-        onOpenChange={(open) => {
-          if (!open) setProfileUser(null);
-        }}
-      >
-        <DialogContent className="sm:max-w-[520px]">
-          <DialogHeader>
-            <DialogTitle>User profile</DialogTitle>
-            <DialogDescription>
-              Basic user information from mock data.
-            </DialogDescription>
-          </DialogHeader>
-
-          {profileUser ? (
-            <div className="space-y-4">
-              <div className="flex items-center gap-3 rounded-xl border border-border bg-card p-4">
-                {profileUser.avatarUrl ? (
-                  <img
-                    src={profileUser.avatarUrl}
-                    alt={profileUser.fullName}
-                    className="size-14 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="flex size-14 items-center justify-center rounded-full bg-primary/10 text-lg font-bold text-primary">
-                    {profileUser.fullName
-                      .split(" ")
-                      .map((item) => item[0])
-                      .join("")
-                      .slice(0, 2)
-                      .toUpperCase()}
-                  </div>
-                )}
-
-                <div>
-                  <h3 className="font-semibold text-foreground">
-                    {profileUser.fullName}
-                  </h3>
-
-                  <p className="text-sm text-muted-foreground">
-                    {profileUser.email}
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-2">
-                <InfoCard label="Status" value={profileUser.status} />
-                <InfoCard
-                  label="Document"
-                  value={profileUser.documentVerification}
-                />
-                <InfoCard label="District" value={profileUser.district} />
-                <InfoCard
-                  label="Communities"
-                  value={`${profileUser.communityCount}`}
-                />
-                <InfoCard label="Posts" value={`${profileUser.postCount}`} />
-                <InfoCard
-                  label="Joined"
-                  value={new Date(profileUser.joinedAt).toLocaleDateString(
-                    "en-GB",
-                    {
-                      day: "2-digit",
-                      month: "short",
-                      year: "numeric",
-                    },
-                  )}
-                />
-              </div>
-            </div>
-          ) : null}
-        </DialogContent>
-      </Dialog>
-
       <AlertDialog
         open={Boolean(banUser)}
         onOpenChange={(open) => {
@@ -284,17 +207,5 @@ export default function AdminUsersPage() {
         </AlertDialogContent>
       </AlertDialog>
     </>
-  );
-}
-
-function InfoCard({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-xl border border-border bg-card p-3">
-      <p className="text-xs font-medium text-muted-foreground">{label}</p>
-
-      <div className="mt-1">
-        <Badge variant="outline">{value}</Badge>
-      </div>
-    </div>
   );
 }

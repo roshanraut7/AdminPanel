@@ -27,8 +27,7 @@ export const adminRoutes = {
   moderator: "/admin/moderator",
 
   documentVerification: "/admin/account/document-verification",
-
-  settingsChangePassword: "/admin/settings/change-password",
+  settings: "/admin/settings",
 } as const;
 
 export type AdminRoute = (typeof adminRoutes)[keyof typeof adminRoutes];
@@ -117,16 +116,10 @@ export const adminNavigationItems: AdminNavigationItem[] = [
   },
 
   {
-    type: "group",
+    type: "link",
     title: "Settings",
     icon: Settings,
-    children: [
-      {
-        title: "Change Password",
-        href: adminRoutes.settingsChangePassword,
-        icon: KeyRound,
-      },
-    ],
+     href: adminRoutes.settings,
   },
 
   {

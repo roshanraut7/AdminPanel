@@ -4,9 +4,7 @@ import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   LoaderCircle,
-  MoreVertical,
   ShieldAlert,
-  SlidersHorizontal,
 } from "lucide-react";
 import { toast } from "sonner";
 
