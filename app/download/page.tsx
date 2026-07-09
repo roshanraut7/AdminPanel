@@ -11,7 +11,7 @@ export default function KamkuroDownloadPage() {
     setIsDownloading(true);
     
     const link = document.createElement('a');
-    link.href = 'http://cdn.kamkuro.com/store/app/kamkuro.apk';
+    link.href = 'https://cdn.kamkuro.com/store/app/kamkuro.apk';
     link.download = 'kamkuro.apk';
     document.body.appendChild(link);
     link.click();
