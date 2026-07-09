@@ -15,8 +15,8 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "PasalGuff",
-  description: "PasalGuff authentication and community platform",
+  title: "KamKuro",
+  description: "KamKuro authentication and community platform",
 };
 
 export default function RootLayout({
