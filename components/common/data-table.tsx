@@ -96,7 +96,8 @@ interface DataTableProps<TData, TValue> {
 
   isLoading?: boolean;
   isFetching?: boolean;
-
+showSearch?: boolean;
+showColumnToggle?: boolean;
   /**
    * Pass this object when the backend controls page/search/sort.
    */
@@ -118,6 +119,8 @@ export function DataTable<TData, TValue>({
   isLoading = false,
   isFetching = false,
   server,
+    showSearch = true,
+  showColumnToggle = true,
 }: DataTableProps<TData, TValue>) {
   const isServerSide = Boolean(server);
 
@@ -269,7 +272,8 @@ export function DataTable<TData, TValue>({
       {/* Toolbar */}
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex flex-1 flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-          {(filterKey || isServerSide) && (
+          {showSearch &&
+  (filterKey || isServerSide) && (
             <div className="relative w-full sm:w-[300px]">
               <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
 
@@ -349,39 +353,46 @@ export function DataTable<TData, TValue>({
           )}
         </div>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              type="button"
-              variant="outline"
-              className="h-10 border-border bg-card text-foreground hover:bg-accent hover:text-accent-foreground"
-            >
-              Columns
-              <ChevronDown className="ml-2 size-4 text-muted-foreground" />
-            </Button>
-          </DropdownMenuTrigger>
+       {showColumnToggle && (
+  <DropdownMenu>
+    <DropdownMenuTrigger asChild>
+      <Button
+        type="button"
+        variant="outline"
+        className="h-10 border-border bg-card text-foreground hover:bg-accent hover:text-accent-foreground"
+      >
+        Columns
 
-          <DropdownMenuContent
-            align="end"
-            className="w-48 border-border bg-popover text-popover-foreground"
+        <ChevronDown className="ml-2 size-4 text-muted-foreground" />
+      </Button>
+    </DropdownMenuTrigger>
+
+    <DropdownMenuContent
+      align="end"
+      className="w-48 border-border bg-popover text-popover-foreground"
+    >
+      {table
+        .getAllColumns()
+        .filter((column) =>
+          column.getCanHide(),
+        )
+        .map((column) => (
+          <DropdownMenuCheckboxItem
+            key={column.id}
+            checked={column.getIsVisible()}
+            onCheckedChange={(value) =>
+              column.toggleVisibility(
+                Boolean(value),
+              )
+            }
+            className="capitalize focus:bg-accent focus:text-accent-foreground"
           >
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => (
-                <DropdownMenuCheckboxItem
-                  key={column.id}
-                  checked={column.getIsVisible()}
-                  onCheckedChange={(value) =>
-                    column.toggleVisibility(Boolean(value))
-                  }
-                  className="capitalize focus:bg-accent focus:text-accent-foreground"
-                >
-                  {column.id}
-                </DropdownMenuCheckboxItem>
-              ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+            {column.id}
+          </DropdownMenuCheckboxItem>
+        ))}
+    </DropdownMenuContent>
+  </DropdownMenu>
+)}
       </div>
 
       {/* Table */}

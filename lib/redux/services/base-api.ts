@@ -22,6 +22,7 @@ export const baseApi = createApi({
   tagTypes: [
     "Category",
     "Community",
+    "Verification",
   ],
 
   endpoints: () => ({}),
