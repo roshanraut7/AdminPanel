@@ -2,6 +2,7 @@
 
 import {
   memo,
+  useCallback,
   useEffect,
   useMemo,
   useState,
@@ -20,7 +21,8 @@ import {
 
 import { AddCommunityForm } from "@/components/form/add-community";
 import { DataTable } from "@/components/common/data-table";
-import { communityColumns } from "@/components/column/community-column";
+import { getCommunityColumns } from "@/components/column/community-column";
+import { AdminDeleteCommunityDialog } from "@/components/common/admin-delete-community-dialog";
 import { AddDistrictCommunityForm } from "@/components/form/add-district-community";
 import {
   useGetAdminCommunitiesQuery,
@@ -34,8 +36,9 @@ import {
 } from "@/components/ui/tabs";
 
 import type {
+  AdminCommunity,
   AdminCommunitySortBy,
-  GetAdminCommunitiesParams,
+  GetAdminCommunitiesParams,  
 } from "@/types/admin-community";
 
 type CommunityTab = "all" | "mine";
@@ -70,6 +73,18 @@ const Page = () => {
   const [searchInput, setSearchInput] =
     useState("");
   const [search, setSearch] = useState("");
+  const [
+  communityToDelete,
+  setCommunityToDelete,
+] =
+  useState<AdminCommunity | null>(
+    null,
+  );
+
+const [
+  deleteDialogOpen,
+  setDeleteDialogOpen,
+] = useState(false);
 
   const [pagination, setPagination] =
     useState<PaginationState>({
@@ -210,6 +225,25 @@ const Page = () => {
     },
   ]);
 };
+const handleDeleteCommunity =
+  useCallback(
+    (community: AdminCommunity) => {
+      setCommunityToDelete(
+        community,
+      );
+
+      setDeleteDialogOpen(true);
+    },
+    [],
+  );
+  const columns = useMemo(
+  () =>
+    getCommunityColumns({
+      onDelete:
+        handleDeleteCommunity,
+    }),
+  [handleDeleteCommunity],
+);
 
   const tableTitle =
     activeTab === "all"
@@ -318,7 +352,7 @@ const Page = () => {
           </div>
 
           <DataTable
-            columns={communityColumns}
+         columns={columns}
             data={communities}
             filterKey="name"
             filterPlaceholder={
@@ -350,6 +384,38 @@ const Page = () => {
           />
         </div>
       </Tabs>
+      <AdminDeleteCommunityDialog
+  community={communityToDelete}
+  open={deleteDialogOpen}
+  onOpenChange={(open) => {
+    setDeleteDialogOpen(open);
+
+    if (!open) {
+      setCommunityToDelete(null);
+    }
+  }}
+  onDeleted={() => {
+    /*
+     * If the last item on a later page was
+     * deleted, return to the previous page.
+     */
+    if (
+      communities.length === 1 &&
+      pagination.pageIndex > 0
+    ) {
+      setPagination(
+        (previous) => ({
+          ...previous,
+
+          pageIndex: Math.max(
+            previous.pageIndex - 1,
+            0,
+          ),
+        }),
+      );
+    }
+  }}
+/>
     </section>
   );
 };

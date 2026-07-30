@@ -5,6 +5,7 @@ import {
   ArrowUpDown,
   Copy,
   MoreHorizontal,
+  Trash2,
 } from "lucide-react";
 
 import type {
@@ -26,6 +27,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export type { AdminCommunity } from "@/types/admin-community";
+
+type CommunityColumnsOptions = {
+  onDelete: (
+    community: AdminCommunity,
+  ) => void;
+};
 
 function getInitials(value: string | null | undefined) {
   if (!value) {
@@ -64,7 +71,10 @@ function SortableHeader({
   );
 }
 
-export const communityColumns: ColumnDef<AdminCommunity>[] = [
+export function getCommunityColumns({
+  onDelete,
+}: CommunityColumnsOptions): ColumnDef<AdminCommunity>[] {
+  return [
   /**
    * COMMUNITY
    */
@@ -394,9 +404,15 @@ export const communityColumns: ColumnDef<AdminCommunity>[] = [
 
               <DropdownMenuSeparator />
 
-              <DropdownMenuItem disabled>
-                View details
-              </DropdownMenuItem>
+             <DropdownMenuItem
+  onClick={() =>
+    onDelete(community)
+  }
+  className="text-destructive focus:bg-destructive/10 focus:text-destructive"
+>
+  <Trash2 className="mr-2 size-4" />
+  Delete community
+</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -404,3 +420,4 @@ export const communityColumns: ColumnDef<AdminCommunity>[] = [
     },
   },
 ];
+}

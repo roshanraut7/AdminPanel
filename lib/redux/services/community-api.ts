@@ -7,13 +7,14 @@ import type {
   AdminCommunityVisibility,
   CommunityPaginationMeta,
   CreateCommunityPayload,
+  DeleteAdminCommunityPayload,
+  DeleteAdminCommunityResponse,
   GetAdminCommunitiesParams,
   GetAllCommunitiesResponse,
   GetMyCommunitiesResponse,
   MyCommunityStats,
   SortDirection,
 } from "@/types/admin-community";
-
 import type {
   AdminCommunityLimitUsersResponse,
   GetCommunityLimitUsersParams,
@@ -254,6 +255,48 @@ export const communityApi = baseApi.injectEndpoints({
               },
             ],
     }),
+    /**
+ * Platform-admin permanent community deletion.
+ *
+ * DELETE /communities/admin/:communityId
+ */
+deleteAdminCommunity: builder.mutation<
+  DeleteAdminCommunityResponse,
+  DeleteAdminCommunityPayload
+>({
+  query: ({
+    communityId,
+    reason,
+    confirmationName,
+  }) => ({
+    url: `/communities/admin/${communityId}`,
+    method: "DELETE",
+
+    body: {
+      reason,
+      confirmationName,
+    },
+  }),
+
+  invalidatesTags: (
+    _result,
+    _error,
+    { communityId },
+  ) => [
+    {
+      type: "Community",
+      id: communityId,
+    },
+    {
+      type: "Community",
+      id: "ADMIN_LIST",
+    },
+    {
+      type: "Community",
+      id: "MY_LIST",
+    },
+  ],
+}),
 
     /**
      * New admin endpoint.
@@ -287,6 +330,7 @@ export const communityApi = baseApi.injectEndpoints({
       ],
     }),
   }),
+  
 
   overrideExisting: false,
 });
@@ -296,9 +340,8 @@ export const {
   useGetMyCommunitiesQuery,
   useCreateCommunityMutation,
   useGetAdminCommunityDetailsQuery,
-
-  // New community limit hooks
   useGetCommunityLimitUsersQuery,
   useUpdateUserCommunityLimitMutation,
-    useCreateOfficialDistrictCommunityMutation,
+  useCreateOfficialDistrictCommunityMutation,
+  useDeleteAdminCommunityMutation,
 } = communityApi;

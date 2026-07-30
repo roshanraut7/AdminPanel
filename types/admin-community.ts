@@ -146,3 +146,28 @@ export type CreateCommunityPayload = {
   avatarImage?: string;
   coverImage?: string;
 };
+export type DeleteAdminCommunityPayload = {
+  communityId: string;
+  reason: string;
+  confirmationName: string;
+};
+
+export type DeleteAdminCommunityResponse = {
+  message: string;
+
+  deletedCommunity: {
+    id: string;
+    name: string;
+    slug: string;
+
+    purpose:
+      | "GENERAL"
+      | "BUSINESS"
+      | "DISTRICT_OFFICIAL";
+
+    memberCount: number;
+    postCount: number;
+    joinRequestCount: number;
+    reason: string;
+  };
+};
