@@ -1,5 +1,13 @@
 import { createAuthClient } from "better-auth/react";
-import { inferAdditionalFields } from "better-auth/client/plugins";
+import {
+  adminClient,
+  inferAdditionalFields,
+} from "better-auth/client/plugins";
+
+import {
+  adminAccessControl,
+  betterAuthRoles,
+} from "@/lib/admin-permissions";
 
 export const authClient = createAuthClient({
   baseURL: process.env.NEXT_PUBLIC_BACKEND_URL,
@@ -8,21 +16,26 @@ export const authClient = createAuthClient({
     credentials: "include",
   },
 
-  /**
-   * Your Better Auth server is in a separate NestJS project.
-   * Therefore, these additional user fields must be described
-   * manually on the Next.js client for correct TypeScript support.
-   */
   plugins: [
+    /**
+     * Gives access to:
+     *
+     * authClient.admin.listUsers()
+     * authClient.admin.banUser()
+     * authClient.admin.unbanUser()
+     * authClient.admin.removeUser()
+     */
+    adminClient({
+      ac: adminAccessControl,
+      roles: betterAuthRoles,
+    }),
+
+    /**
+     * Backend and frontend are separate projects,
+     * so manually describe additional user fields.
+     */
     inferAdditionalFields({
       user: {
-        role: {
-          type: ["USER", "ADMIN", "SUPER_ADMIN"],
-          required: false,
-          defaultValue: "USER",
-          input: false,
-        },
-
         firstName: {
           type: "string",
           required: true,
@@ -59,7 +72,31 @@ export const authClient = createAuthClient({
           input: false,
         },
 
+        businessEmail: {
+          type: "string",
+          required: false,
+          input: false,
+        },
+
+        businessPhoneNo: {
+          type: "string",
+          required: false,
+          input: false,
+        },
+
         address: {
+          type: "string",
+          required: false,
+          input: true,
+        },
+
+        districtKey: {
+          type: "string",
+          required: true,
+          input: true,
+        },
+
+        districtName: {
           type: "string",
           required: true,
           input: true,
@@ -82,4 +119,5 @@ export const authClient = createAuthClient({
   ],
 });
 
-export type AuthSession = typeof authClient.$Infer.Session;
+export type AuthSession =
+  typeof authClient.$Infer.Session;
