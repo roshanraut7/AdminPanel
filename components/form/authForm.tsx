@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  type FormEvent,
+  type SyntheticEvent,
   type ReactNode,
   useEffect,
   useState,
@@ -77,7 +77,7 @@ export default function AuthToggleForm({
     router.refresh();
   };
 
-  const handleLoginSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleLoginSubmit = async (event: SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const formData = new FormData(event.currentTarget);
@@ -121,7 +121,7 @@ export default function AuthToggleForm({
     }
   };
 
-  const handleSignupSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSignupSubmit = async (event: SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const form = event.currentTarget;

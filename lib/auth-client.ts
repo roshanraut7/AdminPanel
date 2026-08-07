@@ -90,15 +90,20 @@ export const authClient = createAuthClient({
           input: true,
         },
 
+        /**
+         * District is not collected by the current signup form.
+         * Keep these optional at signup and fill them later
+         * from profile/onboarding.
+         */
         districtKey: {
           type: "string",
-          required: true,
+          required: false,
           input: true,
         },
 
         districtName: {
           type: "string",
-          required: true,
+          required: false,
           input: true,
         },
 
@@ -119,5 +124,4 @@ export const authClient = createAuthClient({
   ],
 });
 
-export type AuthSession =
-  typeof authClient.$Infer.Session;
+export type AuthSession = typeof authClient.$Infer.Session;
