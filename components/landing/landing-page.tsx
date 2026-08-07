@@ -12,6 +12,7 @@ import {
   Check,
   ChevronRight,
   CircleUserRound,
+  Download,
   Heart,
   Menu,
   MessageCircle,
@@ -61,6 +62,7 @@ const navigation = [
   { label: "Live discussions", href: "#live" },
   { label: "For business", href: "#business" },
   { label: "How it works", href: "#how-it-works" },
+  { label: "Download APK", href: "#download" },
 ];
 
 const features = [
@@ -180,7 +182,7 @@ export default function LandingPage() {
                 profiles into one trusted social platform.
               </p>
 
-              <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">
+              <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row sm:flex-wrap lg:justify-start">
                 <Button
                   size="lg"
                   onClick={() => openAuth("signup")}
@@ -194,7 +196,19 @@ export default function LandingPage() {
                   asChild
                   size="lg"
                   variant="outline"
-                  className="h-12 rounded-xl border-border bg-card/70 px-6 text-sm font-semibold backdrop-blur"
+                  className="h-12 rounded-xl border-primary/25 bg-primary/5 px-6 text-sm font-semibold text-primary hover:bg-primary/10 hover:text-primary"
+                >
+                  <Link href="/download">
+                    <Download className="mr-2 size-4" />
+                    Download APK
+                  </Link>
+                </Button>
+
+                <Button
+                  asChild
+                  size="lg"
+                  variant="ghost"
+                  className="h-12 rounded-xl px-5 text-sm font-semibold"
                 >
                   <Link href="#features">
                     Explore features
@@ -233,6 +247,56 @@ export default function LandingPage() {
                 </Reveal>
               ),
             )}
+          </div>
+        </section>
+
+        <section id="download" className="scroll-mt-24 border-b border-border/70 py-10 sm:py-14">
+          <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+            <Reveal>
+              <div className="relative overflow-hidden rounded-[2rem] border border-primary/15 bg-gradient-to-br from-primary/[0.08] via-card to-accent/40 px-6 py-8 shadow-[0_22px_70px_rgba(5,91,101,0.08)] sm:px-8 lg:px-10">
+                <div className="pointer-events-none absolute -right-20 -top-24 size-56 rounded-full bg-primary/10 blur-3xl" />
+
+                <div className="relative flex flex-col gap-7 lg:flex-row lg:items-center lg:justify-between">
+                  <div className="flex max-w-3xl items-start gap-4">
+                    <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
+                      <Download className="size-6" />
+                    </div>
+
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge className="rounded-full bg-primary/10 text-primary hover:bg-primary/10">
+                          Android app
+                        </Badge>
+                        <span className="text-xs font-semibold text-muted-foreground">
+                          Official Kamkuro APK
+                        </span>
+                      </div>
+
+                      <h2 className="mt-3 text-2xl font-bold tracking-[-0.03em] sm:text-3xl">
+                        Take Kamkuro with you
+                      </h2>
+
+                      <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base">
+                        Download the Android APK from Kamkuro's official download page.
+                        Downloads continue through the tracked download flow already used by
+                        your referral and APK analytics system.
+                      </p>
+                    </div>
+                  </div>
+
+                  <Button
+                    asChild
+                    size="lg"
+                    className="h-12 shrink-0 rounded-xl px-6 font-semibold shadow-[0_14px_35px_rgba(5,91,101,0.18)]"
+                  >
+                    <Link href="/download">
+                      <Download className="mr-2 size-4" />
+                      Download APK
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </Reveal>
           </div>
         </section>
 
