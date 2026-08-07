@@ -21,7 +21,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { dashboardStats } from "@/lib/mocks/dashboard.mock";
+import { dashboardStats } from "@/mocks/dashboard.mock";
 
 type AppRole = "USER" | "ADMIN" | "SUPER_ADMIN";
 
