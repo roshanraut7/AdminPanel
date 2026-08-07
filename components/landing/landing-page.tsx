@@ -14,6 +14,7 @@ import {
   CircleUserRound,
   Download,
   Heart,
+  Loader2,
   Menu,
   MessageCircle,
   MessagesSquare,
@@ -56,6 +57,12 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+
+const API_URL = (
+  process.env.NEXT_PUBLIC_API_URL ??
+  process.env.NEXT_PUBLIC_BACKEND_URL ??
+  "http://localhost:4000"
+).replace(/\/$/, "");
 
 const navigation = [
   { label: "Features", href: "#features" },
@@ -140,11 +147,28 @@ const workflow = [
 export default function LandingPage() {
   const [authOpen, setAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState<AuthMode>("signup");
+  const [isDownloading, setIsDownloading] = useState(false);
   const shouldReduceMotion = useReducedMotion();
 
   const openAuth = (mode: AuthMode) => {
     setAuthMode(mode);
     setAuthOpen(true);
+  };
+
+  const handleDirectDownload = () => {
+    if (isDownloading) {
+      return;
+    }
+
+    setIsDownloading(true);
+
+    // The backend records this as a direct APK download
+    // and then redirects the browser to the actual APK file.
+    window.location.assign(`${API_URL}/app-download/apk`);
+
+    window.setTimeout(() => {
+      setIsDownloading(false);
+    }, 2500);
   };
 
   return (
@@ -193,15 +217,19 @@ export default function LandingPage() {
                 </Button>
 
                 <Button
-                  asChild
+                  type="button"
                   size="lg"
                   variant="outline"
-                  className="h-12 rounded-xl border-primary/25 bg-primary/5 px-6 text-sm font-semibold text-primary hover:bg-primary/10 hover:text-primary"
+                  onClick={handleDirectDownload}
+                  disabled={isDownloading}
+                  className="h-12 rounded-xl border-primary/25 bg-primary/5 px-6 text-sm font-semibold text-primary hover:bg-primary/10 hover:text-primary disabled:opacity-70"
                 >
-                  <Link href="/download">
+                  {isDownloading ? (
+                    <Loader2 className="mr-2 size-4 animate-spin" />
+                  ) : (
                     <Download className="mr-2 size-4" />
-                    Download APK
-                  </Link>
+                  )}
+                  {isDownloading ? "Starting download..." : "Download APK"}
                 </Button>
 
                 <Button
@@ -277,22 +305,25 @@ export default function LandingPage() {
                       </h2>
 
                       <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base">
-                        Download the Android APK from Kamkuro's official download page.
-                        Downloads continue through the tracked download flow already used by
-                        your referral and APK analytics system.
+                        Download the Android APK directly from Kamkuro. Every download
+                        continues through the official tracked APK analytics flow.
                       </p>
                     </div>
                   </div>
 
                   <Button
-                    asChild
+                    type="button"
                     size="lg"
-                    className="h-12 shrink-0 rounded-xl px-6 font-semibold shadow-[0_14px_35px_rgba(5,91,101,0.18)]"
+                    onClick={handleDirectDownload}
+                    disabled={isDownloading}
+                    className="h-12 shrink-0 rounded-xl px-6 font-semibold shadow-[0_14px_35px_rgba(5,91,101,0.18)] disabled:opacity-70"
                   >
-                    <Link href="/download">
+                    {isDownloading ? (
+                      <Loader2 className="mr-2 size-4 animate-spin" />
+                    ) : (
                       <Download className="mr-2 size-4" />
-                      Download APK
-                    </Link>
+                    )}
+                    {isDownloading ? "Starting download..." : "Download APK"}
                   </Button>
                 </div>
               </div>
