@@ -23,6 +23,21 @@ export type AdminMockPost = {
   shares: number;
 };
 
+/**
+ * Only the user fields required for generating mock posts.
+ *
+ * This means we do NOT need the complete AdminUser object.
+ */
+export type MockPostUser = Pick<
+  AdminUser,
+  | "id"
+  | "fullName"
+  | "avatarUrl"
+  | "district"
+  | "postCount"
+  | "joinedAt"
+>;
+
 const samplePostImages = [
   "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=1200&auto=format&fit=crop",
   "https://images.unsplash.com/photo-1511632765486-a01980e01a18?q=80&w=1200&auto=format&fit=crop",
@@ -32,7 +47,9 @@ const samplePostImages = [
   "https://images.unsplash.com/photo-1556761175-b413da4baf72?q=80&w=1200&auto=format&fit=crop",
 ];
 
-export function buildMockAdminPostsForUser(user: AdminUser): AdminMockPost[] {
+export function buildMockAdminPostsForUser(
+  user: MockPostUser,
+): AdminMockPost[] {
   const totalPosts = Math.max(user.postCount, 0);
 
   const postTemplates = [
@@ -77,35 +94,52 @@ export function buildMockAdminPostsForUser(user: AdminUser): AdminMockPost[] {
   return Array.from({
     length: Math.min(totalPosts, 8),
   }).map((_, index) => {
-    const template = postTemplates[index % postTemplates.length];
+    const template =
+      postTemplates[index % postTemplates.length];
 
     return {
       id: `${user.id}-post-${index + 1}`,
+
       authorId: user.id,
       authorName: user.fullName,
       authorAvatarUrl: user.avatarUrl,
+
       title: template.title,
       description: template.description,
+
       community: `${user.district} Community`,
+
       tag: template.tag,
+
       createdAt: user.joinedAt,
+
       media: [
         {
           id: `${user.id}-post-${index + 1}-media-1`,
-          url: samplePostImages[index % samplePostImages.length],
+          url:
+            samplePostImages[
+              index % samplePostImages.length
+            ],
           alt: `${template.title} image 1`,
         },
         {
           id: `${user.id}-post-${index + 1}-media-2`,
-          url: samplePostImages[(index + 1) % samplePostImages.length],
+          url:
+            samplePostImages[
+              (index + 1) % samplePostImages.length
+            ],
           alt: `${template.title} image 2`,
         },
         {
           id: `${user.id}-post-${index + 1}-media-3`,
-          url: samplePostImages[(index + 2) % samplePostImages.length],
+          url:
+            samplePostImages[
+              (index + 2) % samplePostImages.length
+            ],
           alt: `${template.title} image 3`,
         },
       ],
+
       likes: 18 + index * 6,
       dislikes: index % 2 === 0 ? 1 : 3,
       comments: 5 + index * 2,
